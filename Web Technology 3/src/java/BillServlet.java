@@ -4,6 +4,12 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+private static final String DB_USER = System.getenv("DB_USER") != null ? System.getenv("DB_USER") : "root";
+private static final String DB_PASS = System.getenv("DB_PASS") != null ? System.getenv("DB_PASS") : "";
 
 @WebServlet("/BillServlet")
 public class BillServlet extends HttpServlet {
@@ -96,5 +102,42 @@ public class BillServlet extends HttpServlet {
 
         // Forward request processing flow to result JSP view
         request.getRequestDispatcher("result.jsp").forward(request, response);
+    }
+}
+
+@WebServlet("/BillServlet")
+public class BillServlet extends HttpServlet {
+
+    // 1. Add DB Credentials near top of class
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/electricity_db?useSSL=false&allowPublicKeyRetrieval=true";
+    private static final String DB_USER = "root"; 
+    private static final String DB_PASS = "";     
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        // ... existing parameter retrieval & slab calculations ...
+
+        // 2. Insert this JDBC block right after your bill calculations (before request.setAttribute calls)
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS)) {
+                String sql = "INSERT INTO bill_records (customer_name, billing_month, category, units_consumed, previous_bill, total_amount) VALUES (?, ?, ?, ?, ?, ?)";
+                try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                    pstmt.setString(1, name);
+                    pstmt.setString(2, month);
+                    pstmt.setString(3, category);
+                    pstmt.setInt(4, units);
+                    pstmt.setDouble(5, prevBill);
+                    pstmt.setDouble(6, totalBill);
+                    pstmt.executeUpdate();
+                }
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+
+        // ... existing request.setAttribute and requestDispatcher forward calls ...
     }
 }

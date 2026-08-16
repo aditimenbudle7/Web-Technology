@@ -1,0 +1,19 @@
+# NetBeans & Build Output Folders
+build/
+dist/
+nbproject/private/
+
+# Compiled Java Bytecode & Class files
+*.class
+web/WEB-INF/classes/
+
+# Archives & Temporary files
+*.war
+*.ear
+*.zip
+*.tmp
+
+# IDE / OS specific files
+.DS_Store
+Thumbs.db
+.vscode/
