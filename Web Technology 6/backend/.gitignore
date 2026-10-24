@@ -1,0 +1,12 @@
+target/
+.mvn/wrapper/maven-wrapper.jar
+*.class
+*.log
+.env
+.env.*
+!.env.example
+application-local.properties
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
