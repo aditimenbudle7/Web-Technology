@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Dashboard')}"></head>
+<body>
+<header th:replace="~{fragments :: navbar}"></header>
+
+<main class="container page">
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <div class="page-head">
+        <div>
+            <h1>Semester Result Dashboard</h1>
+            <p class="muted" th:text="${instituteName}">Institute</p>
+        </div>
+        <a th:href="@{/results/new}" class="btn btn-primary">+ Add result</a>
+    </div>
+
+    <!-- Summary cards -->
+    <section class="stats">
+        <div class="stat card">
+            <div class="stat-value" th:text="${summary.students()}">0</div>
+            <div class="stat-label">Students</div>
+        </div>
+        <div class="stat card">
+            <div class="stat-value text-pass" th:text="${summary.passed()}">0</div>
+            <div class="stat-label">Passed</div>
+        </div>
+        <div class="stat card">
+            <div class="stat-value text-fail" th:text="${summary.failed()}">0</div>
+            <div class="stat-label">Failed</div>
+        </div>
+        <div class="stat card">
+            <div class="stat-value" th:text="${#numbers.formatDecimal(summary.passPercentage(), 1, 2)} + '%'">0%</div>
+            <div class="stat-label">Pass percentage</div>
+        </div>
+        <div class="stat card">
+            <div class="stat-value" th:text="${#numbers.formatDecimal(summary.averageSgpa(), 1, 2)}">0</div>
+            <div class="stat-label">Average SGPA</div>
+        </div>
+        <div class="stat card">
+            <div class="stat-value stat-small" th:text="${summary.topperName()}">-</div>
+            <div class="stat-label" th:text="'Topper · SGPA ' + ${#numbers.formatDecimal(summary.topperSgpa(), 1, 2)}">Topper</div>
+        </div>
+    </section>
+
+    <!-- Subject-wise analysis -->
+    <section class="card section" th:if="${summary.students() > 0}">
+        <h2>Subject-wise analysis</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr><th>Code</th><th>Subject</th><th>Average</th><th>Highest</th><th>Passed</th><th>Failed</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${summary.subjects()}">
+                    <td th:text="${s.code()}">CS301</td>
+                    <td class="left" th:text="${s.name()}">Subject</td>
+                    <td th:text="${#numbers.formatDecimal(s.averageMarks(), 1, 2)}">0</td>
+                    <td th:text="${#numbers.formatDecimal(s.highestMarks(), 1, 2)}">0</td>
+                    <td class="text-pass" th:text="${s.passed()}">0</td>
+                    <td class="text-fail" th:text="${s.failed()}">0</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Results list -->
+    <section class="card section">
+        <div class="section-head">
+            <h2>Student results</h2>
+            <form th:action="@{/}" method="get" class="search">
+                <input type="search" name="q" th:value="${q}" placeholder="Search roll no. or name" aria-label="Search">
+                <button type="submit" class="btn">Search</button>
+                <a th:if="${q}" th:href="@{/}" class="btn btn-ghost">Clear</a>
+            </form>
+        </div>
+
+        <div th:if="${#lists.isEmpty(results)}" class="empty">
+            <p th:if="${q}">No results match "<span th:text="${q}">x</span>".</p>
+            <p th:unless="${q}">No results yet. <a th:href="@{/results/new}">Add the first student result</a>.</p>
+        </div>
+
+        <div class="table-wrap" th:unless="${#lists.isEmpty(results)}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Roll No.</th>
+                    <th class="left">Name</th>
+                    <th class="hide-sm">Dept.</th>
+                    <th class="hide-sm">Sem</th>
+                    <th th:each="s : ${summary.subjects()}" th:text="${s.code()}" class="hide-md">CS301</th>
+                    <th>Total</th>
+                    <th>%</th>
+                    <th>SGPA</th>
+                    <th>Result</th>
+                    <th class="no-print">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="r : ${results}">
+                    <td><a th:href="@{/results/{id}(id=${r.id()})}" th:text="${r.rollNo()}">R1</a></td>
+                    <td class="left" th:text="${r.name()}">Name</td>
+                    <td class="hide-sm" th:text="${r.department()}">CSE</td>
+                    <td class="hide-sm" th:text="${r.semester()}">5</td>
+                    <td th:each="sr : ${r.subjects()}" class="hide-md">
+                        <span th:text="${#numbers.formatDecimal(sr.finalMarks(), 1, 1)}">0</span>
+                        <span class="grade" th:classappend="${sr.passed()} ? '' : 'grade-f'" th:text="${sr.grade()}">A</span>
+                    </td>
+                    <td th:text="${#numbers.formatDecimal(r.grandTotal(), 1, 2)} + '/' + ${r.maxTotal()}">0</td>
+                    <td th:text="${#numbers.formatDecimal(r.percentage(), 1, 2)}">0</td>
+                    <td><b th:text="${#numbers.formatDecimal(r.sgpa(), 1, 2)}">0</b></td>
+                    <td><span class="badge" th:classappend="${r.passed()} ? 'badge-pass' : 'badge-fail'" th:text="${r.result}">PASS</span></td>
+                    <td class="actions no-print">
+                        <a th:href="@{/results/{id}(id=${r.id()})}" class="btn btn-sm">View</a>
+                        <a th:href="@{/results/{id}/edit(id=${r.id()})}" class="btn btn-sm">Edit</a>
+                        <form th:action="@{/results/{id}/delete(id=${r.id()})}" method="post" class="inline"
+                              onsubmit="return confirm('Delete this result?');">
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

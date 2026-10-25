@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' | Semester Result System'">Semester Result System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<header th:fragment="navbar" class="navbar no-print">
+    <div class="container nav-inner">
+        <a th:href="@{/}" class="brand">
+            <span class="brand-mark">SR</span>
+            <span>Semester <b>Results</b></span>
+        </a>
+        <nav class="nav-links">
+            <a th:href="@{/}" th:classappend="${active == 'home'} ? 'active'">Dashboard</a>
+            <a th:href="@{/results/new}" th:classappend="${active == 'new'} ? 'active'">Add Result</a>
+        </nav>
+    </div>
+</header>
+
+<div th:fragment="flash" th:if="${message}" class="alert alert-success no-print" th:text="${message}">Saved</div>
+
+<footer th:fragment="footer" class="footer no-print">
+    <div class="container">
+        <span th:text="${instituteName}">Institute</span> · Semester Result System ·
+        Final marks = <span th:text="${mseWeight}">30</span>% MSE + <span th:text="${eseWeight}">70</span>% ESE
+    </div>
+</footer>
+
+</body>
+</html>

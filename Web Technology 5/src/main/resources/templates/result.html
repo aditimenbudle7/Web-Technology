@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head(${r.name() + ' - Result'})}"></head>
+<body>
+<header th:replace="~{fragments :: navbar}"></header>
+
+<main class="container page">
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <div class="toolbar no-print">
+        <a th:href="@{/}" class="back">&larr; All results</a>
+        <div class="toolbar-actions">
+            <a th:href="@{/results/{id}/edit(id=${r.id()})}" class="btn">Edit</a>
+            <button type="button" class="btn btn-primary" onclick="window.print()">Print / Save PDF</button>
+        </div>
+    </div>
+
+    <article class="card marksheet">
+        <header class="ms-head">
+            <h1 th:text="${instituteName}">Institute</h1>
+            <p class="ms-sub">Statement of Marks · <span th:text="'Semester ' + ${r.semester()}">Semester 5</span>
+                · Academic Year <span th:text="${r.academicYear()}">2025-26</span></p>
+        </header>
+
+        <dl class="ms-details">
+            <div><dt>Name</dt><dd th:text="${r.name()}">Name</dd></div>
+            <div><dt>Roll number</dt><dd th:text="${r.rollNo()}">R1</dd></div>
+            <div><dt>Department</dt><dd th:text="${r.department()}">Dept</dd></div>
+            <div><dt>Semester</dt><dd th:text="${r.semester()}">5</dd></div>
+        </dl>
+
+        <div class="table-wrap">
+            <table class="ms-table">
+                <thead>
+                <tr>
+                    <th>Code</th>
+                    <th class="left">Subject</th>
+                    <th>Credits</th>
+                    <th>MSE<br><small>/100</small></th>
+                    <th>MSE<br><small th:text="${mseWeight} + '%'">30%</small></th>
+                    <th>ESE<br><small>/100</small></th>
+                    <th>ESE<br><small th:text="${eseWeight} + '%'">70%</small></th>
+                    <th>Final<br><small>/100</small></th>
+                    <th>Grade</th>
+                    <th>Grade<br>points</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${r.subjects()}">
+                    <td th:text="${s.code()}">CS301</td>
+                    <td class="left" th:text="${s.name()}">Subject</td>
+                    <td th:text="${s.credits()}">4</td>
+                    <td th:text="${s.mse()}">0</td>
+                    <td th:text="${#numbers.formatDecimal(s.mseWeighted(), 1, 2)}">0</td>
+                    <td th:text="${s.ese()}">0</td>
+                    <td th:text="${#numbers.formatDecimal(s.eseWeighted(), 1, 2)}">0</td>
+                    <td><b th:text="${#numbers.formatDecimal(s.finalMarks(), 1, 2)}">0</b></td>
+                    <td><span class="grade" th:classappend="${s.passed()} ? '' : 'grade-f'" th:text="${s.grade()}">A</span></td>
+                    <td th:text="${s.gradePoints()}">0</td>
+                    <td th:classappend="${s.passed()} ? 'text-pass' : 'text-fail'" th:text="${s.passed()} ? 'Pass' : 'Fail'">Pass</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <section class="ms-summary">
+            <div class="ms-box">
+                <span>Grand total</span>
+                <b th:text="${#numbers.formatDecimal(r.grandTotal(), 1, 2)} + ' / ' + ${r.maxTotal()}">0 / 400</b>
+            </div>
+            <div class="ms-box">
+                <span>Percentage</span>
+                <b th:text="${#numbers.formatDecimal(r.percentage(), 1, 2)} + '%'">0%</b>
+            </div>
+            <div class="ms-box">
+                <span>Credits earned</span>
+                <b th:text="${r.earnedCredits()} + ' / ' + ${r.totalCredits()}">0 / 14</b>
+            </div>
+            <div class="ms-box">
+                <span>SGPA</span>
+                <b th:text="${#numbers.formatDecimal(r.sgpa(), 1, 2)}">0.00</b>
+            </div>
+            <div class="ms-box ms-result" th:classappend="${r.passed()} ? 'pass' : 'fail'">
+                <span>Result</span>
+                <b th:text="${r.result}">PASS</b>
+            </div>
+        </section>
+
+        <p class="ms-note">
+            Final marks = <span th:text="${mseWeight}">30</span>% of Mid-Semester Examination (MSE) +
+            <span th:text="${eseWeight}">70</span>% of End-Semester Examination (ESE).
+            Grades: O (90+), A+ (80+), A (70+), B+ (60+), B (50+), C (45+), P (40+), F (below 40).
+            SGPA = &Sigma;(credits &times; grade points) / &Sigma; credits.
+        </p>
+    </article>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

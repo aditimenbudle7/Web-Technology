@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head(${editId == null ? 'Add Result' : 'Edit Result'})}"></head>
+<body>
+<header th:replace="~{fragments :: navbar}"></header>
+
+<main class="container page">
+    <a th:href="${editId == null} ? @{/} : @{/results/{id}(id=${editId})}" class="back">&larr; Back</a>
+    <h1 th:text="${editId == null} ? 'Add semester result' : 'Edit semester result'">Add semester result</h1>
+    <p class="muted">
+        Enter MSE and ESE marks out of 100. Final marks =
+        <b th:text="${mseWeight} + '% of MSE'">30% of MSE</b> + <b th:text="${eseWeight} + '% of ESE'">70% of ESE</b>.
+        Minimum 40 to pass a subject.
+    </p>
+
+    <form th:object="${form}" method="post" novalidate class="result-form"
+          th:action="${editId == null} ? @{/results} : @{/results/{id}(id=${editId})}">
+
+        <div class="alert alert-error" th:if="${#fields.hasGlobalErrors()}">
+            <p th:each="err : ${#fields.globalErrors()}" th:text="${err}">Error</p>
+        </div>
+
+        <!-- Student details -->
+        <section class="card section">
+            <h2>Student details</h2>
+            <div class="form-grid">
+                <label class="field">
+                    <span>Roll number</span>
+                    <input type="text" th:field="*{rollNo}" th:errorclass="invalid" placeholder="e.g. CS23-045" maxlength="20">
+                    <small class="error" th:if="${#fields.hasErrors('rollNo')}" th:errors="*{rollNo}">Error</small>
+                </label>
+                <label class="field">
+                    <span>Student name</span>
+                    <input type="text" th:field="*{name}" th:errorclass="invalid" placeholder="Full name" maxlength="80">
+                    <small class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Error</small>
+                </label>
+                <label class="field">
+                    <span>Department</span>
+                    <input type="text" th:field="*{department}" th:errorclass="invalid" placeholder="e.g. Computer Engineering" list="departments" maxlength="60">
+                    <datalist id="departments">
+                        <option value="Computer Engineering"></option>
+                        <option value="Information Technology"></option>
+                        <option value="Electronics & Telecommunication"></option>
+                        <option value="Mechanical Engineering"></option>
+                    </datalist>
+                    <small class="error" th:if="${#fields.hasErrors('department')}" th:errors="*{department}">Error</small>
+                </label>
+                <label class="field">
+                    <span>Semester</span>
+                    <select th:field="*{semester}" th:errorclass="invalid">
+                        <option th:each="n : ${#numbers.sequence(1, 8)}" th:value="${n}" th:text="'Semester ' + ${n}">1</option>
+                    </select>
+                    <small class="error" th:if="${#fields.hasErrors('semester')}" th:errors="*{semester}">Error</small>
+                </label>
+                <label class="field">
+                    <span>Academic year</span>
+                    <input type="text" th:field="*{academicYear}" th:errorclass="invalid" placeholder="2025-26" maxlength="7">
+                    <small class="error" th:if="${#fields.hasErrors('academicYear')}" th:errors="*{academicYear}">Error</small>
+                </label>
+            </div>
+        </section>
+
+        <!-- Marks -->
+        <section class="card section">
+            <h2>Marks (out of 100)</h2>
+            <small class="error" th:if="${#fields.hasErrors('marks')}" th:errors="*{marks}">Error</small>
+            <div class="table-wrap">
+                <table class="marks-table">
+                    <thead>
+                    <tr>
+                        <th class="left">Subject</th>
+                        <th>Credits</th>
+                        <th>MSE (30%)</th>
+                        <th>ESE (70%)</th>
+                        <th>Final</th>
+                        <th>Grade</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="m, st : *{marks}" class="mark-row">
+                        <td class="left">
+                            <input type="hidden" th:field="*{marks[__${st.index}__].subjectId}">
+                            <input type="hidden" th:field="*{marks[__${st.index}__].subjectCode}">
+                            <input type="hidden" th:field="*{marks[__${st.index}__].subjectName}">
+                            <input type="hidden" th:field="*{marks[__${st.index}__].credits}">
+                            <b th:text="${m.subjectCode}">CS301</b>
+                            <span class="muted block" th:text="${m.subjectName}">Subject</span>
+                        </td>
+                        <td th:text="${m.credits}">4</td>
+                        <td>
+                            <input type="number" min="0" max="100" step="1" class="mark-input mse"
+                                   th:field="*{marks[__${st.index}__].mse}" th:errorclass="invalid" aria-label="MSE marks">
+                            <small class="error block" th:if="${#fields.hasErrors('marks[__${st.index}__].mse')}"
+                                   th:errors="*{marks[__${st.index}__].mse}">Error</small>
+                        </td>
+                        <td>
+                            <input type="number" min="0" max="100" step="1" class="mark-input ese"
+                                   th:field="*{marks[__${st.index}__].ese}" th:errorclass="invalid" aria-label="ESE marks">
+                            <small class="error block" th:if="${#fields.hasErrors('marks[__${st.index}__].ese')}"
+                                   th:errors="*{marks[__${st.index}__].ese}">Error</small>
+                        </td>
+                        <td class="final">-</td>
+                        <td><span class="grade grade-preview">-</span></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="muted small">Final marks and grades are previewed as you type; the server calculates the official result.</p>
+        </section>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary" th:text="${editId == null} ? 'Save result' : 'Update result'">Save result</button>
+            <a th:href="@{/}" class="btn btn-ghost">Cancel</a>
+        </div>
+    </form>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+<script th:src="@{/js/form.js}"></script>
+</body>
+</html>

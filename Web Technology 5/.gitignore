@@ -1,0 +1,20 @@
+# Build output
+target/
+*.class
+*.log
+.mvn/wrapper/maven-wrapper.jar
+
+# Secrets / local config (never commit)
+.env
+.env.*
+!.env.example
+application-local.properties
+application-*.local.properties
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
