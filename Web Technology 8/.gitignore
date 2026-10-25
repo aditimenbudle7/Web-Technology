@@ -1,0 +1,13 @@
+target/
+*.class
+*.log
+.mvn/wrapper/maven-wrapper.jar
+.env
+.env.*
+!.env.example
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db

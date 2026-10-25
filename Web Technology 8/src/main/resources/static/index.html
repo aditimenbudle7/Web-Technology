@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CricPulse Live Scores</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='%23c0392b'/><path d='M5 8c4 2 10 2 14 0M5 16c4-2 10-2 14 0' stroke='white' stroke-width='1.5' fill='none' stroke-dasharray='2 1.5'/></svg>" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a href="#/" class="brand" aria-label="CricPulse home">
+        <span class="ball" aria-hidden="true"></span>
+        <span>Cric<b>Pulse</b></span>
+      </a>
+      <nav class="nav" aria-label="Main">
+        <a href="#/" data-nav="home">Matches</a>
+        <a href="#/players" data-nav="players">Players</a>
+        <a href="#/api" data-nav="api">API</a>
+      </nav>
+      <div id="conn" class="conn" title="Real-time connection status">
+        <span class="dot"></span><span class="conn-text">Connecting…</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="view" class="container" aria-live="polite"></main>
+
+  <footer class="footer">
+    <div class="container">
+      CricPulse · Spring Boot real-time cricket scoring · All teams, players and matches are simulated.
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" role="status"></div>
+  <script src="js/app.js"></script>
+</body>
+</html>
